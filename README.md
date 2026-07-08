@@ -1,2 +1,605 @@
-# nnutry-github.io
-Figma realization for Octagon educational practice
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KidsConnect</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <header class="header">
+        <div class="logo">
+          <img src="assets/icon.svg" alt="KidsConnect" class="logo-icon">
+          <span>KidsConnect</span>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div v-if="!selectedSection">
+          <div class="search-bar">
+            <div class="search-left">
+              <div class="search-input-wrapper">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="7.5" cy="7.5" r="6" stroke="#9CA3AF" stroke-width="1.5"/>
+                  <path d="M12 12L16 16" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <input type="text" placeholder="Поиск" class="search-input">
+              </div>
+              <div class="filter-tabs">
+                <button :class="{ active: activeTab === 'all' }" @click="activeTab = 'all'">Все</button>
+                <button :class="{ active: activeTab === 'paid' }" @click="activeTab = 'paid'">Платные</button>
+                <button :class="{ active: activeTab === 'free' }" @click="activeTab = 'free'">Бесплатные</button>
+              </div>
+            </div>
+            <button class="map-btn">
+              На карте
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="content-wrapper">
+            <div class="sections-list">
+              <div v-for="(group, index) in sectionGroups" :key="index">
+                <h2 class="category-title">{{ group.category }}</h2>
+                <div v-for="section in group.items" :key="section.id" class="section-card" @click="openDetail(section)">
+                  <div class="card-top-border"></div>
+                  <div class="section-image">
+                    <div class="placeholder-image">
+                      <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                        <rect width="120" height="120" rx="8" fill="#D1D5DB"/>
+                        <circle cx="40" cy="40" r="8" fill="#9CA3AF"/>
+                        <path d="M20 90L50 60L70 80L100 50L100 100L20 100Z" fill="#9CA3AF"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="section-content">
+                    <div class="section-header">
+                      <div class="title-wrapper">
+                        <h3>{{ section.title }}</h3>
+                        <span class="hashtag">{{ section.hashtag }}</span>
+                      </div>
+                    </div>
+                    <div class="section-badges">
+                      <span v-if="section.badge === 'free'" class="badge badge-free">Бесплатно</span>
+                      <span v-else-if="section.badge === 'first-free'" class="badge badge-first-free">Первое бесплатно</span>
+                      <span v-else-if="section.badge === 'price'" class="badge badge-price">{{ section.price }}</span>
+                    </div>
+                    <div class="section-meta">
+                      <div class="meta-row">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                        </svg>
+                        <span>{{ section.age }}</span>
+                      </div>
+                      <div class="meta-row">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                        </svg>
+                        <span>{{ section.address }}</span>
+                      </div>
+                      <div class="meta-row">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                        </svg>
+                        <span>{{ section.location }}</span>
+                      </div>
+                      <div class="meta-row schedule">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <circle cx="8" cy="8" r="7" stroke="#7c2d3a" stroke-width="1.5"/>
+                          <path d="M8 4V8L10 10" stroke="#7c2d3a" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span class="days">{{ section.days }}</span>
+                        <div class="time-slots">
+                          <span v-for="(time, index) in section.times" :key="index" class="time-badge">{{ time }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn-details" @click.stop="openDetail(section)">Подробнее</button>
+                </div>
+              </div>
+            </div>
+
+            <aside class="filters-sidebar">
+              <h3 class="filters-title">Фильтры</h3>
+              
+              <div class="filter-group">
+                <label class="filter-label">Возраст</label>
+                <select class="filter-select">
+                  <option>Любой</option>
+                  <option>3-5 лет</option>
+                  <option>6-10 лет</option>
+                  <option>11-15 лет</option>
+                  <option>16-18 лет</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Пол</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" checked>
+                    <span>Мужской</span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" checked>
+                    <span>Женский</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group catalog-filter">
+                <label class="filter-label">Каталог</label>
+                <div class="category-list">
+                  <div v-for="cat in filterCategories" :key="cat.name" class="category-item">
+                    <div class="category-header" @click="cat.expanded = !cat.expanded">
+                      <span class="cat-name">{{ cat.name }}</span>
+                      <span class="cat-count" v-if="cat.count">{{ cat.count }}</span>
+                      <svg :class="{ rotated: cat.expanded }" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                      </svg>
+                    </div>
+                    <div v-if="cat.expanded" class="category-subitems">
+                      <div v-for="subitem in cat.items" :key="subitem.name" class="subitem">
+                        <span class="subitem-name">{{ subitem.name }}</span>
+                        <span class="subitem-count" v-if="subitem.count">{{ subitem.count }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <div v-else class="detail-view">
+          <div class="detail-header">
+            <button class="btn-back" @click="selectedSection = null">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              </svg>
+              Назад
+            </button>
+            <button class="map-btn">
+              На карте
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+              </svg>
+            </button>
+          </div>
+
+          <h1 class="detail-title">{{ selectedSection.fullTitle }}</h1>
+
+          <div class="detail-card">
+            <div class="detail-card-top-border"></div>
+            <div class="detail-image">
+              <img :src="selectedSection.image" :alt="selectedSection.title">
+            </div>
+            <div class="detail-info">
+              <div class="detail-badges">
+                <span v-if="selectedSection.enrollment" class="badge-enrollment">{{ selectedSection.enrollment }}</span>
+                <div class="badge-wrapper">
+                  <span v-if="selectedSection.badge === 'free'" class="badge badge-free">Бесплатно</span>
+                  <span v-else-if="selectedSection.badge === 'first-free'" class="badge badge-first-free">Первое бесплатно</span>
+                  <span v-else-if="selectedSection.badge === 'price'" class="badge badge-price">{{ selectedSection.price }}</span>
+                </div>
+              </div>
+              <div class="detail-meta">
+                <div class="meta-row">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                  </svg>
+                  <span>{{ selectedSection.age }}</span>
+                </div>
+                <div class="meta-row">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                  </svg>
+                  <span>{{ selectedSection.address }}</span>
+                </div>
+                <div class="meta-row">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2C5.5 2 3.5 4 3.5 6.5C3.5 9.5 8 14 8 14C8 14 12.5 9.5 12.5 6.5C12.5 4 10.5 2 8 2ZM8 8C6.5 8 5.5 7 5.5 6C5.5 5 6.5 4 8 4C9.5 4 10.5 5 10.5 6C10.5 7 9.5 8 8 8Z" fill="#7c2d3a"/>
+                  </svg>
+                  <span>{{ selectedSection.location }}</span>
+                </div>
+              </div>
+              <button class="btn-enroll">Записаться</button>
+            </div>
+          </div>
+
+          <div class="detail-blocks">
+            <div class="detail-block">
+              <div class="block-top-border"></div>
+              <div class="blocks-grid">
+                <div class="block-column">
+                  <h3>Группы</h3>
+                  <div class="group-info">
+                    <h4>Этап начальной подготовки</h4>
+                    <div class="info-line">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1C4.23858 1 2 3.23858 2 6C2 8.76142 4.23858 11 7 11C9.76142 11 12 8.76142 12 6C12 3.23858 9.76142 1 7 1ZM7 9C5.34315 9 4 7.65685 4 6C4 4.34315 5.34315 3 7 3C8.65685 3 10 4.34315 10 6C10 7.65685 8.65685 9 7 9Z" fill="#7c2d3a"/>
+                      </svg>
+                      <span>{{ selectedSection.coach }}</span>
+                    </div>
+                    <div class="info-line">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1C4.23858 1 2 3.23858 2 6C2 8.76142 4.23858 11 7 11C9.76142 11 12 8.76142 12 6C12 3.23858 9.76142 1 7 1ZM7 9C5.34315 9 4 7.65685 4 6C4 4.34315 5.34315 3 7 3C8.65685 3 10 4.34315 10 6C10 7.65685 8.65685 9 7 9Z" fill="#7c2d3a"/>
+                      </svg>
+                      <span>15 из 20</span>
+                    </div>
+                    <div class="info-line">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="7" r="6" stroke="#7c2d3a" stroke-width="1.5"/>
+                        <path d="M4 7L6 9L10 5" stroke="#7c2d3a" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                      <span>12 месяцев</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="block-column">
+                  <h3>Расписание занятий</h3>
+                  <div class="schedule-info">
+                    <div class="schedule-row">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="7" r="6" stroke="#7c2d3a" stroke-width="1.5"/>
+                        <path d="M7 4V7L9 9" stroke="#7c2d3a" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                      <span>Пн, Вт, Чт, Сб</span>
+                    </div>
+                    <div class="schedule-row">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="7" r="6" stroke="#7c2d3a" stroke-width="1.5"/>
+                        <path d="M7 4V7L9 9" stroke="#7c2d3a" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                      <span>Пн, Вт, Чт, Сб</span>
+                      <div class="time-slots">
+                        <span class="time-badge">08:00 - 10:00</span>
+                        <span class="time-badge">18:00 - 19:30</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-block">
+              <div class="block-top-border"></div>
+              <h3>Описание</h3>
+              <p>Лёгкая атлетика - олимпийский вид спорта, объединяющий беговые виды, спортивную ходьбу, технические виды (прыжки и метания), многоборья, пробеги (бег по шоссе), кроссы (бег по пересечённой местности).</p>
+            </div>
+
+            <div class="detail-block">
+              <div class="block-top-border"></div>
+              <div class="accordion-header" @click="accordionOpen = !accordionOpen">
+                <h3>Содержание программы</h3>
+                <svg :class="{ rotated: accordionOpen }" width="16" height="16" viewBox="0 0 16 16">
+                  <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+              <div v-if="accordionOpen" class="accordion-content">
+                <div class="program-level">
+                  <h4>Базовый уровень</h4>
+                  <p>Базовый уровень сложности первый-второй год обучения, 252 часа.</p>
+                  <ul>
+                    <li>Обязательные предметные области (количество часов - 15);</li>
+                    <li>Вариативные предметные области (количество часов - 10);</li>
+                    <li>Теория (количество часов - 5);</li>
+                    <li>Практика (количество часов - 216);</li>
+                    <li>Самостоятельная работа (количество часов - 2);</li>
+                    <li>Аттестация (количество часов - 4).</li>
+                  </ul>
+                  <p>Базовый уровень сложности третий-четвертый год обучения, 416 часов.</p>
+                  <ul>
+                    <li>Обязательные предметные области (количество часов - 25);</li>
+                    <li>Вариативные предметные области (количество часов - 15);</li>
+                    <li>Теория (количество часов - 7);</li>
+                    <li>Практика (количество часов - 360);</li>
+                    <li>Самостоятельная работа (количество часов - 4);</li>
+                    <li>Аттестация (количество часов - 4).</li>
+                  </ul>
+                  <p>Базовый уровень сложности пятый-шестой год обучения, 429 часов.</p>
+                  <ul>
+                    <li>Обязательные предметные области (количество часов - 27);</li>
+                    <li>Вариативные предметные области (количество часов - 15);</li>
+                    <li>Теория (количество часов - 8);</li>
+                    <li>Практика (количество часов - 360);</li>
+                    <li>Самостоятельная работа (количество часов - 6);</li>
+                    <li>Аттестация (количество часов - 4).</li>
+                  </ul>
+                </div>
+                <div class="program-level">
+                  <h4>Углубленный уровень</h4>
+                  <p>Содержание программы углубленного уровня...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        const activeTab = ref('all');
+        const selectedSection = ref(null);
+        const accordionOpen = ref(false);
+
+        const sectionGroups = ref([
+          {
+            category: 'Силовой спорт',
+            items: [
+              {
+                id: 1,
+                title: 'Тяжелая атлетика (в Юбилейном мкр.)',
+                fullTitle: 'Лёгкая атлетика (в Юбилейном мкр.)',
+                hashtag: '#Тяжелая атлетика',
+                age: '10-18 лет',
+                address: 'г. Иркутск, Юбилейный мкр., стр. 49/1',
+                location: 'ФОК "Юбилейный"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30', '18:00 - 19:30'],
+                badge: 'free',
+                enrollment: 'Набор открыт',
+                coach: 'Петрова Елена Александровна',
+                image: 'assets/track-cover.png'
+              },
+              {
+                id: 2,
+                title: 'Тяжелая атлетика (на ул. Боткина)',
+                fullTitle: 'Тяжелая атлетика (на ул. Боткина)',
+                hashtag: '#Тяжелая атлетика',
+                age: '10-18 лет',
+                address: 'г. Иркутск, Юбилейный мкр., стр. 49/1',
+                location: 'ФОК "Юбилейный"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30'],
+                badge: 'first-free',
+                price: '500 руб.',
+                enrollment: 'Набор открыт',
+                coach: 'Иванов Сергей Петрович',
+                image: 'assets/track-cover.png'
+              },
+              {
+                id: 3,
+                title: 'Тяжелая атлетика (на ул. Норильской)',
+                fullTitle: 'Тяжелая атлетика (на ул. Норильской)',
+                hashtag: '#Тяжелая атлетика',
+                age: '10-18 лет',
+                address: 'г. Иркутск, Юбилейный мкр., стр. 49/1',
+                location: 'ФОК "Юбилейный"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30', '18:00 - 19:30'],
+                badge: 'first-free',
+                price: '3200 руб. 8 занятий',
+                enrollment: 'Набор открыт',
+                coach: 'Сидоров Алексей Владимирович',
+                image: 'assets/track-cover.png'
+              },
+              {
+                id: 4,
+                title: 'Пауэрлифтинг',
+                fullTitle: 'Пауэрлифтинг',
+                hashtag: '#Пауэрлифтинг',
+                age: '10-18 лет',
+                address: 'г. Иркутск, Юбилейный мкр., стр. 49/1',
+                location: 'ФОК "Юбилейный"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30', '18:00 - 19:30'],
+                badge: 'free',
+                enrollment: 'Набор открыт',
+                coach: 'Козлов Дмитрий Иванович',
+                image: 'assets/track-cover.png'
+              }
+            ]
+          },
+          {
+            category: 'Единоборства',
+            items: [
+              {
+                id: 5,
+                title: 'Дзюдо',
+                fullTitle: 'Дзюдо',
+                hashtag: '#Дзюдо',
+                age: '6-18 лет',
+                address: 'г Иркутск, ул Трудовая, д 115А',
+                location: 'СК "Вымпел"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30', '18:00 - 19:30'],
+                badge: 'free',
+                enrollment: 'Набор открыт',
+                coach: 'Смирнов Андрей Петрович',
+                image: 'assets/track-cover.png'
+              },
+              {
+                id: 6,
+                title: 'Вольная борьба (на ул. Норильская)',
+                fullTitle: 'Вольная борьба (на ул. Норильская)',
+                hashtag: '#Дзюдо',
+                age: '6-18 лет',
+                address: 'г Иркутск, ул Трудовая, д 115А',
+                location: 'СК "Вымпел"',
+                days: 'Пн, Ср, Пт',
+                times: ['09:00 - 10:30', '12:00 - 13:30', '18:00 - 19:30'],
+                badge: 'first-free',
+                price: '3200 руб. месяц',
+                enrollment: 'Набор открыт',
+                coach: 'Волков Сергей Михайлович',
+                image: 'assets/track-cover.png'
+              }
+            ]
+          }
+        ]);
+
+        const filterCategories = ref([
+          {
+            name: 'Силовой спорт',
+            count: 3,
+            expanded: true,
+            items: [
+              { name: 'Тяжелая атлетика', count: 3 },
+              { name: 'Пауэрлифтинг', count: 1 }
+            ]
+          },
+          {
+            name: 'Единоборства',
+            count: 2,
+            expanded: true,
+            items: [
+              { name: 'Вольная борьба', count: 1 },
+              { name: 'Дзюдо', count: 1 }
+            ]
+          },
+          {
+            name: 'ДПИ и ремесла',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Техническое конструирование',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Словесность',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Иностранные языки',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Развитие интеллекта',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Информационные технологии',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'История и Традиции',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Педагогика',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Музыка и звук',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Пение',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Хореография(танцы)',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Зрелищные искусства',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Мода и стиль',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Познавательные развлечения',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Туризм',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Естественные науки',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Люди и животные',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Эстетические виды спорта',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Технические виды спорта',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Командно-игровой спорт',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Индивидуально игровой спорт',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Водные виды спорта',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Лёгкая атлетика и гимнастика',
+            expanded: false,
+            items: []
+          },
+          {
+            name: 'Физкультура',
+            expanded: false,
+            items: []
+          }
+        ]);
+
+        const openDetail = (section) => {
+          selectedSection.value = section;
+          accordionOpen.value = false;
+          window.scrollTo(0, 0);
+        };
+
+        return {
+          activeTab,
+          filterCategories,
+          sectionGroups,
+          selectedSection,
+          accordionOpen,
+          openDetail
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+
+</html>
